@@ -1,6 +1,7 @@
-on:
-  pull_request:
-    types: [opened, synchronize]
+on: [workflow_dispatch]
+# on:
+#   pull_request:
+#     types: [opened, synchronize]
 
 name: Generate Pull Request Stats
 
