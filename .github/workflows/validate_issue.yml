@@ -1,7 +1,8 @@
 name: Validate issue
-on:
-  issues:
-    types: [labeled]
+on: [workflow_dispatch]
+# on:
+#   issues:
+#     types: [labeled]
 
 jobs:
   validate:
