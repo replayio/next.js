@@ -1,10 +1,11 @@
-on:
-  push:
-    branches: [canary]
-  pull_request:
-    types: [opened, synchronize]
-
 name: Build, test, and deploy
+
+on: [workflow_dispatch]
+# on:
+#   push:
+#     branches: [canary]
+#   pull_request:
+#     types: [opened, synchronize]
 
 env:
   NAPI_CLI_VERSION: 2.7.0

@@ -1,10 +1,10 @@
 name: 'Lock Threads'
-
-on:
-  schedule:
-    # This runs twice a day: https://crontab.guru/#0_0,12_*_*_*
-    - cron: '0 0,12 * * *'
-  workflow_dispatch:
+on: [workflow_dispatch]
+# on:
+#   schedule:
+#     # This runs twice a day: https://crontab.guru/#0_0,12_*_*_*
+#     - cron: '0 0,12 * * *'
+# workflow_dispatch:
 
 permissions:
   issues: write
