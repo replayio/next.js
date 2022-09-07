@@ -10,6 +10,7 @@ export class Replay extends Playwright {
       executablePath: getExecutablePath(browser) || undefined,
       env: {
         RECORD_ALL_CONTENT: 1,
+        RECORD_REPLAY_METADATA_FILE: '/tmp/replay-metadata',
       },
     })
   }
