@@ -132,11 +132,10 @@ jobs:
       - run: npx @replayio/playwright install all
         if: ${{needs.build.outputs.docsChange == 'nope'}}
 
-      - run: NEXT_TEST_MODE=dev node run-tests.js --type e2e --timings -g ${{ matrix.group }}/3
+      - run: RECORD_REPLAY=1 NEXT_TEST_MODE=dev node run-tests.js --type e2e --timings -g ${{ matrix.group }}/3
         name: Run test/e2e (dev)
         if: ${{needs.build.outputs.docsChange == 'nope'}}
         env:
-          RECORD_REPLAY: 1
           RECORD_REPLAY_TEST_METRICS: 1
           RECORD_REPLAY_WEBHOOK_URL: ${{ secrets.RECORD_REPLAY_WEBHOOK_URL }}
           DEBUG: pw:browser*
@@ -157,9 +156,9 @@ jobs:
           apiKey: rwk_1LfNb6DteBpcQbb5dcy3XZbo1jidYqN5qQr5uYYfiVt
           public: true
 
-      # - name: List replays
-      #   if: always()
-      #   run: npx @replayio/replay ls --json
+      - name: List replays
+        if: always()
+        run: npx @replayio/replay ls --json
 
   build-native-test:
     name: Build native binary for tests and metrics

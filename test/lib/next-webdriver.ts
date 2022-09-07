@@ -63,6 +63,7 @@ export default async function webdriver(
     locale?: string
   }
 ): Promise<BrowserInterface> {
+  console.log('>>webdriver')
   let CurrentInterface: typeof BrowserInterface
 
   const defaultOptions = {

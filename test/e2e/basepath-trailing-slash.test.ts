@@ -29,6 +29,7 @@ describe('basePath + trailingSlash', () => {
 
   const runTests = (dev = false) => {
     it('should allow URL query strings without refresh', async () => {
+      console.log('run first test')
       const browser = await webdriver(next.url, `${basePath}/hello/?query=true`)
       try {
         await browser.eval('window.itdidnotrefresh = "hello"')
