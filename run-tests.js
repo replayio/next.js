@@ -24,7 +24,8 @@ const TIMINGS_API_HEADERS = {
 
 const testFilters = {
   unit: 'unit/',
-  e2e: 'e2e/',
+  // Run e2e tests selectively so it finishes faster
+  e2e: 'e2e/basepath',
   production: 'production/',
   development: 'development/',
 }

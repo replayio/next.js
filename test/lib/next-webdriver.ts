@@ -81,14 +81,17 @@ export default async function webdriver(
 
   // we import only the needed interface
   if (USE_SELENIUM) {
+    console.log('>>selenium')
     const { Selenium, quit } = await import('./browsers/selenium')
     CurrentInterface = Selenium
     browserQuit = quit
   } else if (process.env.RECORD_REPLAY) {
+    console.log('>>recordreplay')
     const { Replay, quit } = await require('./browsers/replay')
     CurrentInterface = Replay
     browserQuit = quit
   } else {
+    console.log('>>playwright')
     const { Playwright, quit } = await import('./browsers/playwright')
     CurrentInterface = Playwright
     browserQuit = quit
