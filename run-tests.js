@@ -239,8 +239,6 @@ async function main() {
     `jest${process.platform === 'win32' ? '.CMD' : ''}`
   )
 
-  console.log('>>>>runtest')
-
   const runTest = (test = '', isFinalRun) =>
     new Promise((resolve, reject) => {
       const start = new Date().getTime()
