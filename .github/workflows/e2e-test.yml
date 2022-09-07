@@ -128,9 +128,16 @@ jobs:
       - run: npm i -g playwright-chromium@1.22.2 && npx playwright install-deps
         if: ${{needs.build.outputs.docsChange == 'nope'}}
 
+      - run: npx @replayio/playwright install all
+        if: ${{needs.build.outputs.docsChange == 'nope'}}
+
       - run: NEXT_TEST_MODE=dev node run-tests.js --type e2e --timings -g ${{ matrix.group }}/3
         name: Run test/e2e (dev)
         if: ${{needs.build.outputs.docsChange == 'nope'}}
+        env:
+          RECORD_REPLAY: 1
+          RECORD_REPLAY_TEST_METRICS: 1
+          RECORD_REPLAY_WEBHOOK_URL: ${{ secrets.RECORD_REPLAY_WEBHOOK_URL }}
 
       - name: Upload test trace
         if: always()
@@ -141,6 +148,12 @@ jobs:
           retention-days: 2
           path: |
             test/traces
+
+      - uses: replayio/action-upload@v0.1.1
+        if: always()
+        with:
+          apiKey: rwk_1LfNb6DteBpcQbb5dcy3XZbo1jidYqN5qQr5uYYfiVt
+          public: true
 
   build-native-test:
     name: Build native binary for tests and metrics
