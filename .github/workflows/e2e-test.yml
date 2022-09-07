@@ -132,7 +132,7 @@ jobs:
       - run: npx @replayio/playwright install all
         if: ${{needs.build.outputs.docsChange == 'nope'}}
 
-      - run: RECORD_REPLAY=1 NEXT_TEST_MODE=dev node run-tests.js --type e2e --timings -g ${{ matrix.group }}/3
+      - run: RECORD_REPLAY=1 NEXT_TEST_MODE=dev node run-tests.js --type e2e --timings -g ${{ matrix.group }}/3 --debug
         name: Run test/e2e (dev)
         if: ${{needs.build.outputs.docsChange == 'nope'}}
         env:
