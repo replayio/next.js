@@ -94,7 +94,8 @@ jobs:
       fail-fast: false
       matrix:
         node: [16, 18]
-        group: [1, 2, 3]
+        # group: [1, 2, 3]
+        group: [1]
     steps:
       - name: Setup node
         uses: actions/setup-node@v3
@@ -138,6 +139,7 @@ jobs:
           RECORD_REPLAY: 1
           RECORD_REPLAY_TEST_METRICS: 1
           RECORD_REPLAY_WEBHOOK_URL: ${{ secrets.RECORD_REPLAY_WEBHOOK_URL }}
+          DEBUG: pw:browser*
 
       - name: Upload test trace
         if: always()
@@ -154,6 +156,10 @@ jobs:
         with:
           apiKey: rwk_1LfNb6DteBpcQbb5dcy3XZbo1jidYqN5qQr5uYYfiVt
           public: true
+
+      # - name: List replays
+      #   if: always()
+      #   run: npx @replayio/replay ls --json
 
   build-native-test:
     name: Build native binary for tests and metrics
