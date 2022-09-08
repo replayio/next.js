@@ -150,10 +150,10 @@ jobs:
           path: |
             test/traces
 
-      - uses: replayio/action-upload@v0.1.1
+      - uses: replayio/action-upload@v0.4.4
         if: always()
         with:
-          apiKey: rwk_1LfNb6DteBpcQbb5dcy3XZbo1jidYqN5qQr5uYYfiVt
+          api-key: rwk_1LfNb6DteBpcQbb5dcy3XZbo1jidYqN5qQr5uYYfiVt
           public: true
 
       - name: List replays
