@@ -1,7 +1,7 @@
 name: Test Dev
 
 on:
-  push:
+  # push:
   workflow_dispatch:
 
 env:
