@@ -10,7 +10,6 @@ export class Replay extends Playwright {
       executablePath: getExecutablePath(browser) || undefined,
       env: {
         ...process.env,
-        RECORD_ALL_CONTENT: 1,
       },
     })
   }
