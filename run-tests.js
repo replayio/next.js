@@ -25,9 +25,10 @@ const TIMINGS_API_HEADERS = {
 const testFilters = {
   unit: 'unit/',
   // Run e2e tests selectively so it finishes faster
-  e2e: 'e2e',
+  e2e: 'e2e/middleware',
   production: 'production/',
-  development: 'development/',
+  // Run dev tests selectively so it finishes faster
+  development: 'development/acceptance',
 }
 
 // which types we have configured to run separate
@@ -246,6 +247,9 @@ async function main() {
       const child = spawn(
         jestPath,
         [
+          ...(process.env.RECORD_REPLAY_NO_RECORD
+            ? []
+            : [`--config=jest.replay.config.js`]),
           '--runInBand',
           '--forceExit',
           '--verbose',

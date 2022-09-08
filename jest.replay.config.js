@@ -10,6 +10,8 @@ const customJestConfig = {
   rootDir: 'test',
   modulePaths: ['<rootDir>/lib'],
   transformIgnorePatterns: ['/next[/\\\\]dist/', '/\\.next/'],
+  testTimeout: 60000,
+  testRunner: '@replayio/jest/runner',
 }
 
 // createJestConfig is exported in this way to ensure that next/jest can load the Next.js config which is async
