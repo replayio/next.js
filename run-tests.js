@@ -240,6 +240,10 @@ async function main() {
     `jest${process.platform === 'win32' ? '.CMD' : ''}`
   )
 
+  const useReplayJestConfig =
+    process.env.RECORD_REPLAY && !process.env.RECORD_REPLAY_NO_RECORD
+  console.log('>>>', { useReplayJestConfig })
+
   const runTest = (test = '', isFinalRun) =>
     new Promise((resolve, reject) => {
       const start = new Date().getTime()
@@ -247,9 +251,9 @@ async function main() {
       const child = spawn(
         jestPath,
         [
-          ...(process.env.RECORD_REPLAY_NO_RECORD
-            ? []
-            : [`--config=jest.replay.config.js`]),
+          ...(process.env.RECORD_REPLAY && !process.env.RECORD_REPLAY_NO_RECORD
+            ? [`--config=jest.replay.config.js`]
+            : []),
           '--runInBand',
           '--forceExit',
           '--verbose',
