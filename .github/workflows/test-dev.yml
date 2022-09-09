@@ -294,6 +294,9 @@ jobs:
       - run: npm i -g playwright-chromium@1.22.2 && npx playwright install-deps
         if: ${{needs.build.outputs.docsChange == 'nope'}}
 
+      - run: npx @replayio/playwright install all
+        if: ${{needs.build.outputs.docsChange == 'nope'}}
+
       - run: node run-tests.js --type development --timings -g ${{ matrix.group }}/2 --debug
         name: Run test/development
         if: ${{needs.build.outputs.docsChange == 'nope'}}
@@ -494,6 +497,9 @@ jobs:
         if: ${{needs.build.outputs.docsChange == 'nope'}}
 
       - run: npm i -g playwright-chromium@1.22.2 && npx playwright install-deps
+        if: ${{needs.build.outputs.docsChange == 'nope'}}
+
+      - run: npx @replayio/playwright install all
         if: ${{needs.build.outputs.docsChange == 'nope'}}
 
       - run: node run-tests.js --type development --timings -g ${{ matrix.group }}/2 --debug
@@ -703,6 +709,9 @@ jobs:
       - run: npm i -g playwright-chromium@1.22.2 && npx playwright install-deps
         if: ${{needs.build.outputs.docsChange == 'nope'}}
 
+      - run: npx @replayio/playwright install all
+        if: ${{needs.build.outputs.docsChange == 'nope'}}
+
       - run: node run-tests.js --type e2e --timings -g ${{ matrix.group }}/3 --debug
         name: Run test/e2e (dev)
         if: ${{needs.build.outputs.docsChange == 'nope'}}
@@ -908,6 +917,9 @@ jobs:
         if: ${{needs.build.outputs.docsChange == 'nope'}}
 
       - run: npm i -g playwright-chromium@1.22.2 && npx playwright install-deps
+        if: ${{needs.build.outputs.docsChange == 'nope'}}
+
+      - run: npx @replayio/playwright install all
         if: ${{needs.build.outputs.docsChange == 'nope'}}
 
       - run: node run-tests.js --type e2e --timings -g ${{ matrix.group }}/3 --debug
