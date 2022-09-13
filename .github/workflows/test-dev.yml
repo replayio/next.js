@@ -173,416 +173,416 @@ jobs:
           cargo install cargo-cache --no-default-features --features ci-autoclean
           cargo-cache
 
-  testDevRecord:
-    name: Test Development (record)
-    runs-on: ubuntu-latest
-    needs: [build, build-native-test]
-    env:
-      NEXT_TELEMETRY_DISABLED: 1
-      NEXT_TEST_JOB: 1
-    strategy:
-      fail-fast: false
-      matrix:
-        node: [16, 18]
-        group: [1, 2]
-    steps:
-      - name: Setup node
-        uses: actions/setup-node@v3
-        if: ${{needs.build.outputs.docsChange == 'nope'}}
-        with:
-          node-version: ${{ matrix.node }}
-          check-latest: true
+  # testDevRecord:
+  #   name: Test Development (record)
+  #   runs-on: ubuntu-latest
+  #   needs: [build, build-native-test]
+  #   env:
+  #     NEXT_TELEMETRY_DISABLED: 1
+  #     NEXT_TEST_JOB: 1
+  #   strategy:
+  #     fail-fast: false
+  #     matrix:
+  #       node: [16, 18]
+  #       group: [1, 2]
+  #   steps:
+  #     - name: Setup node
+  #       uses: actions/setup-node@v3
+  #       if: ${{needs.build.outputs.docsChange == 'nope'}}
+  #       with:
+  #         node-version: ${{ matrix.node }}
+  #         check-latest: true
 
-      - run: echo ${{needs.build.outputs.docsChange}}
+  #     - run: echo ${{needs.build.outputs.docsChange}}
 
-      # https://github.com/actions/virtual-environments/issues/1187
-      - name: tune linux network
-        run: sudo ethtool -K eth0 tx off rx off
+  #     # https://github.com/actions/virtual-environments/issues/1187
+  #     - name: tune linux network
+  #       run: sudo ethtool -K eth0 tx off rx off
 
-      - uses: actions/cache@v3
-        if: ${{needs.build.outputs.docsChange == 'nope'}}
-        id: restore-build
-        with:
-          path: ./*
-          key: ${{ github.sha }}-${{ github.run_number }}
+  #     - uses: actions/cache@v3
+  #       if: ${{needs.build.outputs.docsChange == 'nope'}}
+  #       id: restore-build
+  #       with:
+  #         path: ./*
+  #         key: ${{ github.sha }}-${{ github.run_number }}
 
-      - uses: actions/download-artifact@v3
-        if: ${{needs.build.outputs.docsChange == 'nope'}}
-        with:
-          name: next-swc-test-binary
-          path: packages/next-swc/native
+  #     - uses: actions/download-artifact@v3
+  #       if: ${{needs.build.outputs.docsChange == 'nope'}}
+  #       with:
+  #         name: next-swc-test-binary
+  #         path: packages/next-swc/native
 
-      - run: npm i -g pnpm@${PNPM_VERSION}
-        if: ${{needs.build.outputs.docsChange == 'nope'}}
+  #     - run: npm i -g pnpm@${PNPM_VERSION}
+  #       if: ${{needs.build.outputs.docsChange == 'nope'}}
 
-      - run: npm i -g playwright-chromium@1.22.2 && npx playwright install-deps
-        if: ${{needs.build.outputs.docsChange == 'nope'}}
+  #     - run: npm i -g playwright-chromium@1.22.2 && npx playwright install-deps
+  #       if: ${{needs.build.outputs.docsChange == 'nope'}}
 
-      - run: npx @replayio/playwright install all
-        if: ${{needs.build.outputs.docsChange == 'nope'}}
+  #     - run: npx @replayio/playwright install all
+  #       if: ${{needs.build.outputs.docsChange == 'nope'}}
 
-      - run: node run-tests.js --type development --timings -g ${{ matrix.group }}/2 --debug
-        name: Run test/development
-        if: ${{needs.build.outputs.docsChange == 'nope'}}
-        env:
-          RECORD_REPLAY_METADATA_TEST_RUN_TITLE: testDev / Group ${{ matrix.group }} / Node ${{ matrix.node }}
-          RECORD_ALL_CONTENT: 1
-          RECORD_REPLAY: 1
-          RECORD_REPLAY_TEST_METRICS: 1
-          RECORD_REPLAY_WEBHOOK_URL:
-            ${{ secrets.RECORD_REPLAY_WEBHOOK_URL }}
-            # DEBUG: pw:browser*
+  #     - run: node run-tests.js --type development --timings -g ${{ matrix.group }}/2 --debug
+  #       name: Run test/development
+  #       if: ${{needs.build.outputs.docsChange == 'nope'}}
+  #       env:
+  #         RECORD_REPLAY_METADATA_TEST_RUN_TITLE: testDev / Group ${{ matrix.group }} / Node ${{ matrix.node }}
+  #         RECORD_ALL_CONTENT: 1
+  #         RECORD_REPLAY: 1
+  #         RECORD_REPLAY_TEST_METRICS: 1
+  #         RECORD_REPLAY_WEBHOOK_URL:
+  #           ${{ secrets.RECORD_REPLAY_WEBHOOK_URL }}
+  #           # DEBUG: pw:browser*
 
-      - name: Upload test trace
-        if: always()
-        uses: actions/upload-artifact@v3
-        with:
-          name: test-trace
-          if-no-files-found: ignore
-          retention-days: 2
-          path: |
-            test/traces
+  #     - name: Upload test trace
+  #       if: always()
+  #       uses: actions/upload-artifact@v3
+  #       with:
+  #         name: test-trace
+  #         if-no-files-found: ignore
+  #         retention-days: 2
+  #         path: |
+  #           test/traces
 
-      - uses: replayio/action-upload@v0.4.4
-        if: always()
-        with:
-          api-key: rwk_1LfNb6DteBpcQbb5dcy3XZbo1jidYqN5qQr5uYYfiVt
-          public: true
+  #     - uses: replayio/action-upload@v0.4.4
+  #       if: always()
+  #       with:
+  #         api-key: rwk_1LfNb6DteBpcQbb5dcy3XZbo1jidYqN5qQr5uYYfiVt
+  #         public: true
 
-  testDevNoRecord:
-    name: Test Development (no record)
-    runs-on: ubuntu-latest
-    needs: [build, build-native-test]
-    env:
-      NEXT_TELEMETRY_DISABLED: 1
-      NEXT_TEST_JOB: 1
-    strategy:
-      fail-fast: false
-      matrix:
-        node: [16, 18]
-        group: [1, 2]
-    steps:
-      - name: Setup node
-        uses: actions/setup-node@v3
-        if: ${{needs.build.outputs.docsChange == 'nope'}}
-        with:
-          node-version: ${{ matrix.node }}
-          check-latest: true
+  # testDevNoRecord:
+  #   name: Test Development (no record)
+  #   runs-on: ubuntu-latest
+  #   needs: [build, build-native-test]
+  #   env:
+  #     NEXT_TELEMETRY_DISABLED: 1
+  #     NEXT_TEST_JOB: 1
+  #   strategy:
+  #     fail-fast: false
+  #     matrix:
+  #       node: [16, 18]
+  #       group: [1, 2]
+  #   steps:
+  #     - name: Setup node
+  #       uses: actions/setup-node@v3
+  #       if: ${{needs.build.outputs.docsChange == 'nope'}}
+  #       with:
+  #         node-version: ${{ matrix.node }}
+  #         check-latest: true
 
-      - run: echo ${{needs.build.outputs.docsChange}}
+  #     - run: echo ${{needs.build.outputs.docsChange}}
 
-      # https://github.com/actions/virtual-environments/issues/1187
-      - name: tune linux network
-        run: sudo ethtool -K eth0 tx off rx off
+  #     # https://github.com/actions/virtual-environments/issues/1187
+  #     - name: tune linux network
+  #       run: sudo ethtool -K eth0 tx off rx off
 
-      - uses: actions/cache@v3
-        if: ${{needs.build.outputs.docsChange == 'nope'}}
-        id: restore-build
-        with:
-          path: ./*
-          key: ${{ github.sha }}-${{ github.run_number }}
+  #     - uses: actions/cache@v3
+  #       if: ${{needs.build.outputs.docsChange == 'nope'}}
+  #       id: restore-build
+  #       with:
+  #         path: ./*
+  #         key: ${{ github.sha }}-${{ github.run_number }}
 
-      - uses: actions/download-artifact@v3
-        if: ${{needs.build.outputs.docsChange == 'nope'}}
-        with:
-          name: next-swc-test-binary
-          path: packages/next-swc/native
+  #     - uses: actions/download-artifact@v3
+  #       if: ${{needs.build.outputs.docsChange == 'nope'}}
+  #       with:
+  #         name: next-swc-test-binary
+  #         path: packages/next-swc/native
 
-      - run: npm i -g pnpm@${PNPM_VERSION}
-        if: ${{needs.build.outputs.docsChange == 'nope'}}
+  #     - run: npm i -g pnpm@${PNPM_VERSION}
+  #       if: ${{needs.build.outputs.docsChange == 'nope'}}
 
-      - run: npm i -g playwright-chromium@1.22.2 && npx playwright install-deps
-        if: ${{needs.build.outputs.docsChange == 'nope'}}
+  #     - run: npm i -g playwright-chromium@1.22.2 && npx playwright install-deps
+  #       if: ${{needs.build.outputs.docsChange == 'nope'}}
 
-      - run: npx @replayio/playwright install all
-        if: ${{needs.build.outputs.docsChange == 'nope'}}
+  #     - run: npx @replayio/playwright install all
+  #       if: ${{needs.build.outputs.docsChange == 'nope'}}
 
-      - run: node run-tests.js --type development --timings -g ${{ matrix.group }}/2 --debug
-        name: Run test/development
-        if: ${{needs.build.outputs.docsChange == 'nope'}}
-        env:
-          RECORD_REPLAY_METADATA_TEST_RUN_TITLE: testDev / Group ${{ matrix.group }} / Node ${{ matrix.node }}
-          RECORD_ALL_CONTENT: 1
-          RECORD_REPLAY: 1
-          RECORD_REPLAY_TEST_METRICS: 1
-          RECORD_REPLAY_WEBHOOK_URL: ${{ secrets.RECORD_REPLAY_WEBHOOK_URL }}
-          RECORD_REPLAY_NO_RECORD: 1
-          # DEBUG: pw:browser*
+  #     - run: node run-tests.js --type development --timings -g ${{ matrix.group }}/2 --debug
+  #       name: Run test/development
+  #       if: ${{needs.build.outputs.docsChange == 'nope'}}
+  #       env:
+  #         RECORD_REPLAY_METADATA_TEST_RUN_TITLE: testDev / Group ${{ matrix.group }} / Node ${{ matrix.node }}
+  #         RECORD_ALL_CONTENT: 1
+  #         RECORD_REPLAY: 1
+  #         RECORD_REPLAY_TEST_METRICS: 1
+  #         RECORD_REPLAY_WEBHOOK_URL: ${{ secrets.RECORD_REPLAY_WEBHOOK_URL }}
+  #         RECORD_REPLAY_NO_RECORD: 1
+  #         # DEBUG: pw:browser*
 
-      - name: Upload test trace
-        if: always()
-        uses: actions/upload-artifact@v3
-        with:
-          name: test-trace
-          if-no-files-found: ignore
-          retention-days: 2
-          path: |
-            test/traces
+  #     - name: Upload test trace
+  #       if: always()
+  #       uses: actions/upload-artifact@v3
+  #       with:
+  #         name: test-trace
+  #         if-no-files-found: ignore
+  #         retention-days: 2
+  #         path: |
+  #           test/traces
 
-  testDevOriginal:
-    name: Test Development (original)
-    runs-on: ubuntu-latest
-    needs: [build, build-native-test]
-    env:
-      NEXT_TELEMETRY_DISABLED: 1
-      NEXT_TEST_JOB: 1
-    strategy:
-      fail-fast: false
-      matrix:
-        node: [16, 18]
-        group: [1, 2]
-    steps:
-      - name: Setup node
-        uses: actions/setup-node@v3
-        if: ${{needs.build.outputs.docsChange == 'nope'}}
-        with:
-          node-version: ${{ matrix.node }}
-          check-latest: true
+  # testDevOriginal:
+  #   name: Test Development (original)
+  #   runs-on: ubuntu-latest
+  #   needs: [build, build-native-test]
+  #   env:
+  #     NEXT_TELEMETRY_DISABLED: 1
+  #     NEXT_TEST_JOB: 1
+  #   strategy:
+  #     fail-fast: false
+  #     matrix:
+  #       node: [16, 18]
+  #       group: [1, 2]
+  #   steps:
+  #     - name: Setup node
+  #       uses: actions/setup-node@v3
+  #       if: ${{needs.build.outputs.docsChange == 'nope'}}
+  #       with:
+  #         node-version: ${{ matrix.node }}
+  #         check-latest: true
 
-      - run: echo ${{needs.build.outputs.docsChange}}
+  #     - run: echo ${{needs.build.outputs.docsChange}}
 
-      # https://github.com/actions/virtual-environments/issues/1187
-      - name: tune linux network
-        run: sudo ethtool -K eth0 tx off rx off
+  #     # https://github.com/actions/virtual-environments/issues/1187
+  #     - name: tune linux network
+  #       run: sudo ethtool -K eth0 tx off rx off
 
-      - uses: actions/cache@v3
-        if: ${{needs.build.outputs.docsChange == 'nope'}}
-        id: restore-build
-        with:
-          path: ./*
-          key: ${{ github.sha }}-${{ github.run_number }}
+  #     - uses: actions/cache@v3
+  #       if: ${{needs.build.outputs.docsChange == 'nope'}}
+  #       id: restore-build
+  #       with:
+  #         path: ./*
+  #         key: ${{ github.sha }}-${{ github.run_number }}
 
-      - uses: actions/download-artifact@v3
-        if: ${{needs.build.outputs.docsChange == 'nope'}}
-        with:
-          name: next-swc-test-binary
-          path: packages/next-swc/native
+  #     - uses: actions/download-artifact@v3
+  #       if: ${{needs.build.outputs.docsChange == 'nope'}}
+  #       with:
+  #         name: next-swc-test-binary
+  #         path: packages/next-swc/native
 
-      - run: npm i -g pnpm@${PNPM_VERSION}
-        if: ${{needs.build.outputs.docsChange == 'nope'}}
+  #     - run: npm i -g pnpm@${PNPM_VERSION}
+  #       if: ${{needs.build.outputs.docsChange == 'nope'}}
 
-      - run: npm i -g playwright-chromium@1.22.2 && npx playwright install-deps
-        if: ${{needs.build.outputs.docsChange == 'nope'}}
+  #     - run: npm i -g playwright-chromium@1.22.2 && npx playwright install-deps
+  #       if: ${{needs.build.outputs.docsChange == 'nope'}}
 
-      - run: node run-tests.js --type development --timings -g ${{ matrix.group }}/2
-        name: Run test/development
-        if: ${{needs.build.outputs.docsChange == 'nope'}}
+  #     - run: node run-tests.js --type development --timings -g ${{ matrix.group }}/2
+  #       name: Run test/development
+  #       if: ${{needs.build.outputs.docsChange == 'nope'}}
 
-      - name: Upload test trace
-        if: always()
-        uses: actions/upload-artifact@v3
-        with:
-          name: test-trace
-          if-no-files-found: ignore
-          retention-days: 2
-          path: |
-            test/traces
+  #     - name: Upload test trace
+  #       if: always()
+  #       uses: actions/upload-artifact@v3
+  #       with:
+  #         name: test-trace
+  #         if-no-files-found: ignore
+  #         retention-days: 2
+  #         path: |
+  #           test/traces
 
-  testDevReact17Record:
-    name: Test Development (react v17) (record)
-    runs-on: ubuntu-latest
-    needs: [build, build-native-test]
-    env:
-      NEXT_TELEMETRY_DISABLED: 1
-      NEXT_TEST_JOB: 1
-      NEXT_TEST_REACT_VERSION: ^17
-    strategy:
-      fail-fast: false
-      matrix:
-        group: [1, 2]
-    steps:
-      - name: Setup node
-        uses: actions/setup-node@v3
-        if: ${{needs.build.outputs.docsChange == 'nope'}}
-        with:
-          node-version: 16
-          check-latest: true
+  # testDevReact17Record:
+  #   name: Test Development (react v17) (record)
+  #   runs-on: ubuntu-latest
+  #   needs: [build, build-native-test]
+  #   env:
+  #     NEXT_TELEMETRY_DISABLED: 1
+  #     NEXT_TEST_JOB: 1
+  #     NEXT_TEST_REACT_VERSION: ^17
+  #   strategy:
+  #     fail-fast: false
+  #     matrix:
+  #       group: [1, 2]
+  #   steps:
+  #     - name: Setup node
+  #       uses: actions/setup-node@v3
+  #       if: ${{needs.build.outputs.docsChange == 'nope'}}
+  #       with:
+  #         node-version: 16
+  #         check-latest: true
 
-      - run: echo ${{needs.build.outputs.docsChange}}
+  #     - run: echo ${{needs.build.outputs.docsChange}}
 
-      # https://github.com/actions/virtual-environments/issues/1187
-      - name: tune linux network
-        run: sudo ethtool -K eth0 tx off rx off
+  #     # https://github.com/actions/virtual-environments/issues/1187
+  #     - name: tune linux network
+  #       run: sudo ethtool -K eth0 tx off rx off
 
-      - uses: actions/cache@v3
-        if: ${{needs.build.outputs.docsChange == 'nope'}}
-        id: restore-build
-        with:
-          path: ./*
-          key: ${{ github.sha }}-${{ github.run_number }}
+  #     - uses: actions/cache@v3
+  #       if: ${{needs.build.outputs.docsChange == 'nope'}}
+  #       id: restore-build
+  #       with:
+  #         path: ./*
+  #         key: ${{ github.sha }}-${{ github.run_number }}
 
-      - uses: actions/download-artifact@v3
-        if: ${{needs.build.outputs.docsChange == 'nope'}}
-        with:
-          name: next-swc-test-binary
-          path: packages/next-swc/native
+  #     - uses: actions/download-artifact@v3
+  #       if: ${{needs.build.outputs.docsChange == 'nope'}}
+  #       with:
+  #         name: next-swc-test-binary
+  #         path: packages/next-swc/native
 
-      - run: npm i -g pnpm@${PNPM_VERSION}
-        if: ${{needs.build.outputs.docsChange == 'nope'}}
+  #     - run: npm i -g pnpm@${PNPM_VERSION}
+  #       if: ${{needs.build.outputs.docsChange == 'nope'}}
 
-      - run: npm i -g playwright-chromium@1.22.2 && npx playwright install-deps
-        if: ${{needs.build.outputs.docsChange == 'nope'}}
+  #     - run: npm i -g playwright-chromium@1.22.2 && npx playwright install-deps
+  #       if: ${{needs.build.outputs.docsChange == 'nope'}}
 
-      - run: npx @replayio/playwright install all
-        if: ${{needs.build.outputs.docsChange == 'nope'}}
+  #     - run: npx @replayio/playwright install all
+  #       if: ${{needs.build.outputs.docsChange == 'nope'}}
 
-      - run: node run-tests.js --type development --timings -g ${{ matrix.group }}/2 --debug
-        name: Run test/development
-        if: ${{needs.build.outputs.docsChange == 'nope'}}
-        env:
-          RECORD_REPLAY_METADATA_TEST_RUN_TITLE: testDevReact17 / Group ${{ matrix.group }}
-          RECORD_ALL_CONTENT: 1
-          RECORD_REPLAY: 1
-          RECORD_REPLAY_TEST_METRICS: 1
-          RECORD_REPLAY_WEBHOOK_URL:
-            ${{ secrets.RECORD_REPLAY_WEBHOOK_URL }}
-            # DEBUG: pw:browser*
+  #     - run: node run-tests.js --type development --timings -g ${{ matrix.group }}/2 --debug
+  #       name: Run test/development
+  #       if: ${{needs.build.outputs.docsChange == 'nope'}}
+  #       env:
+  #         RECORD_REPLAY_METADATA_TEST_RUN_TITLE: testDevReact17 / Group ${{ matrix.group }}
+  #         RECORD_ALL_CONTENT: 1
+  #         RECORD_REPLAY: 1
+  #         RECORD_REPLAY_TEST_METRICS: 1
+  #         RECORD_REPLAY_WEBHOOK_URL:
+  #           ${{ secrets.RECORD_REPLAY_WEBHOOK_URL }}
+  #           # DEBUG: pw:browser*
 
-      - name: Upload test trace
-        if: always()
-        uses: actions/upload-artifact@v3
-        with:
-          name: test-trace
-          if-no-files-found: ignore
-          retention-days: 2
-          path: |
-            test/traces
+  #     - name: Upload test trace
+  #       if: always()
+  #       uses: actions/upload-artifact@v3
+  #       with:
+  #         name: test-trace
+  #         if-no-files-found: ignore
+  #         retention-days: 2
+  #         path: |
+  #           test/traces
 
-      - uses: replayio/action-upload@v0.4.4
-        if: always()
-        with:
-          api-key: rwk_1LfNb6DteBpcQbb5dcy3XZbo1jidYqN5qQr5uYYfiVt
-          public: true
+  #     - uses: replayio/action-upload@v0.4.4
+  #       if: always()
+  #       with:
+  #         api-key: rwk_1LfNb6DteBpcQbb5dcy3XZbo1jidYqN5qQr5uYYfiVt
+  #         public: true
 
-  testDevReact17NoRecord:
-    name: Test Development (react v17) (no record)
-    runs-on: ubuntu-latest
-    needs: [build, build-native-test]
-    env:
-      NEXT_TELEMETRY_DISABLED: 1
-      NEXT_TEST_JOB: 1
-      NEXT_TEST_REACT_VERSION: ^17
-    strategy:
-      fail-fast: false
-      matrix:
-        group: [1, 2]
-    steps:
-      - name: Setup node
-        uses: actions/setup-node@v3
-        if: ${{needs.build.outputs.docsChange == 'nope'}}
-        with:
-          node-version: 16
-          check-latest: true
+  # testDevReact17NoRecord:
+  #   name: Test Development (react v17) (no record)
+  #   runs-on: ubuntu-latest
+  #   needs: [build, build-native-test]
+  #   env:
+  #     NEXT_TELEMETRY_DISABLED: 1
+  #     NEXT_TEST_JOB: 1
+  #     NEXT_TEST_REACT_VERSION: ^17
+  #   strategy:
+  #     fail-fast: false
+  #     matrix:
+  #       group: [1, 2]
+  #   steps:
+  #     - name: Setup node
+  #       uses: actions/setup-node@v3
+  #       if: ${{needs.build.outputs.docsChange == 'nope'}}
+  #       with:
+  #         node-version: 16
+  #         check-latest: true
 
-      - run: echo ${{needs.build.outputs.docsChange}}
+  #     - run: echo ${{needs.build.outputs.docsChange}}
 
-      # https://github.com/actions/virtual-environments/issues/1187
-      - name: tune linux network
-        run: sudo ethtool -K eth0 tx off rx off
+  #     # https://github.com/actions/virtual-environments/issues/1187
+  #     - name: tune linux network
+  #       run: sudo ethtool -K eth0 tx off rx off
 
-      - uses: actions/cache@v3
-        if: ${{needs.build.outputs.docsChange == 'nope'}}
-        id: restore-build
-        with:
-          path: ./*
-          key: ${{ github.sha }}-${{ github.run_number }}
+  #     - uses: actions/cache@v3
+  #       if: ${{needs.build.outputs.docsChange == 'nope'}}
+  #       id: restore-build
+  #       with:
+  #         path: ./*
+  #         key: ${{ github.sha }}-${{ github.run_number }}
 
-      - uses: actions/download-artifact@v3
-        if: ${{needs.build.outputs.docsChange == 'nope'}}
-        with:
-          name: next-swc-test-binary
-          path: packages/next-swc/native
+  #     - uses: actions/download-artifact@v3
+  #       if: ${{needs.build.outputs.docsChange == 'nope'}}
+  #       with:
+  #         name: next-swc-test-binary
+  #         path: packages/next-swc/native
 
-      - run: npm i -g pnpm@${PNPM_VERSION}
-        if: ${{needs.build.outputs.docsChange == 'nope'}}
+  #     - run: npm i -g pnpm@${PNPM_VERSION}
+  #       if: ${{needs.build.outputs.docsChange == 'nope'}}
 
-      - run: npm i -g playwright-chromium@1.22.2 && npx playwright install-deps
-        if: ${{needs.build.outputs.docsChange == 'nope'}}
+  #     - run: npm i -g playwright-chromium@1.22.2 && npx playwright install-deps
+  #       if: ${{needs.build.outputs.docsChange == 'nope'}}
 
-      - run: npx @replayio/playwright install all
-        if: ${{needs.build.outputs.docsChange == 'nope'}}
+  #     - run: npx @replayio/playwright install all
+  #       if: ${{needs.build.outputs.docsChange == 'nope'}}
 
-      - run: node run-tests.js --type development --timings -g ${{ matrix.group }}/2 --debug
-        name: Run test/development
-        if: ${{needs.build.outputs.docsChange == 'nope'}}
-        env:
-          RECORD_REPLAY_METADATA_TEST_RUN_TITLE: testDevReact17 / Group ${{ matrix.group }}
-          RECORD_ALL_CONTENT: 1
-          RECORD_REPLAY: 1
-          RECORD_REPLAY_TEST_METRICS: 1
-          RECORD_REPLAY_WEBHOOK_URL: ${{ secrets.RECORD_REPLAY_WEBHOOK_URL }}
-          RECORD_REPLAY_NO_RECORD:
-            1
-            # DEBUG: pw:browser*
+  #     - run: node run-tests.js --type development --timings -g ${{ matrix.group }}/2 --debug
+  #       name: Run test/development
+  #       if: ${{needs.build.outputs.docsChange == 'nope'}}
+  #       env:
+  #         RECORD_REPLAY_METADATA_TEST_RUN_TITLE: testDevReact17 / Group ${{ matrix.group }}
+  #         RECORD_ALL_CONTENT: 1
+  #         RECORD_REPLAY: 1
+  #         RECORD_REPLAY_TEST_METRICS: 1
+  #         RECORD_REPLAY_WEBHOOK_URL: ${{ secrets.RECORD_REPLAY_WEBHOOK_URL }}
+  #         RECORD_REPLAY_NO_RECORD:
+  #           1
+  #           # DEBUG: pw:browser*
 
-      - name: Upload test trace
-        if: always()
-        uses: actions/upload-artifact@v3
-        with:
-          name: test-trace
-          if-no-files-found: ignore
-          retention-days: 2
-          path: |
-            test/traces
+  #     - name: Upload test trace
+  #       if: always()
+  #       uses: actions/upload-artifact@v3
+  #       with:
+  #         name: test-trace
+  #         if-no-files-found: ignore
+  #         retention-days: 2
+  #         path: |
+  #           test/traces
 
-  testDevReact17Original:
-    name: Test Development (react v17) (original)
-    runs-on: ubuntu-latest
-    needs: [build, build-native-test]
-    env:
-      NEXT_TELEMETRY_DISABLED: 1
-      NEXT_TEST_JOB: 1
-      NEXT_TEST_REACT_VERSION: ^17
-    strategy:
-      fail-fast: false
-      matrix:
-        group: [1, 2]
-    steps:
-      - name: Setup node
-        uses: actions/setup-node@v3
-        if: ${{needs.build.outputs.docsChange == 'nope'}}
-        with:
-          node-version: 16
-          check-latest: true
+  # testDevReact17Original:
+  #   name: Test Development (react v17) (original)
+  #   runs-on: ubuntu-latest
+  #   needs: [build, build-native-test]
+  #   env:
+  #     NEXT_TELEMETRY_DISABLED: 1
+  #     NEXT_TEST_JOB: 1
+  #     NEXT_TEST_REACT_VERSION: ^17
+  #   strategy:
+  #     fail-fast: false
+  #     matrix:
+  #       group: [1, 2]
+  #   steps:
+  #     - name: Setup node
+  #       uses: actions/setup-node@v3
+  #       if: ${{needs.build.outputs.docsChange == 'nope'}}
+  #       with:
+  #         node-version: 16
+  #         check-latest: true
 
-      - run: echo ${{needs.build.outputs.docsChange}}
+  #     - run: echo ${{needs.build.outputs.docsChange}}
 
-      # https://github.com/actions/virtual-environments/issues/1187
-      - name: tune linux network
-        run: sudo ethtool -K eth0 tx off rx off
+  #     # https://github.com/actions/virtual-environments/issues/1187
+  #     - name: tune linux network
+  #       run: sudo ethtool -K eth0 tx off rx off
 
-      - uses: actions/cache@v3
-        if: ${{needs.build.outputs.docsChange == 'nope'}}
-        id: restore-build
-        with:
-          path: ./*
-          key: ${{ github.sha }}-${{ github.run_number }}
+  #     - uses: actions/cache@v3
+  #       if: ${{needs.build.outputs.docsChange == 'nope'}}
+  #       id: restore-build
+  #       with:
+  #         path: ./*
+  #         key: ${{ github.sha }}-${{ github.run_number }}
 
-      - uses: actions/download-artifact@v3
-        if: ${{needs.build.outputs.docsChange == 'nope'}}
-        with:
-          name: next-swc-test-binary
-          path: packages/next-swc/native
+  #     - uses: actions/download-artifact@v3
+  #       if: ${{needs.build.outputs.docsChange == 'nope'}}
+  #       with:
+  #         name: next-swc-test-binary
+  #         path: packages/next-swc/native
 
-      - run: npm i -g pnpm@${PNPM_VERSION}
-        if: ${{needs.build.outputs.docsChange == 'nope'}}
+  #     - run: npm i -g pnpm@${PNPM_VERSION}
+  #       if: ${{needs.build.outputs.docsChange == 'nope'}}
 
-      - run: npm i -g playwright-chromium@1.22.2 && npx playwright install-deps
-        if: ${{needs.build.outputs.docsChange == 'nope'}}
+  #     - run: npm i -g playwright-chromium@1.22.2 && npx playwright install-deps
+  #       if: ${{needs.build.outputs.docsChange == 'nope'}}
 
-      - run: node run-tests.js --type development --timings -g ${{ matrix.group }}/2
-        name: Run test/development
-        if: ${{needs.build.outputs.docsChange == 'nope'}}
+  #     - run: node run-tests.js --type development --timings -g ${{ matrix.group }}/2
+  #       name: Run test/development
+  #       if: ${{needs.build.outputs.docsChange == 'nope'}}
 
-      - name: Upload test trace
-        if: always()
-        uses: actions/upload-artifact@v3
-        with:
-          name: test-trace
-          if-no-files-found: ignore
-          retention-days: 2
-          path: |
-            test/traces
+  #     - name: Upload test trace
+  #       if: always()
+  #       uses: actions/upload-artifact@v3
+  #       with:
+  #         name: test-trace
+  #         if-no-files-found: ignore
+  #         retention-days: 2
+  #         path: |
+  #           test/traces
 
   testDevE2ERecord:
     name: Test Development (E2E) (record)
