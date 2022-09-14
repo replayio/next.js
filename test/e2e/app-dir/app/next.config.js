@@ -8,6 +8,7 @@ module.exports = {
       algorithm: 'sha256',
     },
   },
+  productionBrowserSourceMaps: true,
   // assetPrefix: '/assets',
   rewrites: async () => {
     return {
