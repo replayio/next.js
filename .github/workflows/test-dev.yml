@@ -654,7 +654,7 @@ jobs:
           if-no-files-found: ignore
           retention-days: 2
           path: |
-            test/traces
+            .next/static/chunks/**/*.map
 
       - uses: replayio/action-upload@v0.4.4
         if: always()
@@ -865,7 +865,7 @@ jobs:
           if-no-files-found: ignore
           retention-days: 2
           path: |
-            test/traces
+            .next/static/chunks/**/*.map
 
       - uses: replayio/action-upload@v0.4.4
         if: always()
