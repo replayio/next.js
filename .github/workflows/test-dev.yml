@@ -635,6 +635,9 @@ jobs:
       - run: npx @replayio/playwright install all
         if: ${{needs.build.outputs.docsChange == 'nope'}}
 
+      - run: find /tmp/next-* | grep '.next/static/chunks'
+        if: always()
+
       - run: node run-tests.js --type e2e --timings -g ${{ matrix.group }}/3 --debug
         name: Run test/e2e (dev)
         if: ${{needs.build.outputs.docsChange == 'nope'}}
@@ -648,6 +651,12 @@ jobs:
           # DEBUG: pw:browser*
 
       - run: npx @replayio/replay ls --json
+        if: always()
+
+      - run: find $TMPDIR/next-* | grep '.next/static/chunks'
+        if: always()
+
+      - run: find /tmp/next-* | grep '.next/static/chunks'
         if: always()
 
       - name: Check for sourcemaps in .next/static/chunks/**/*.map
