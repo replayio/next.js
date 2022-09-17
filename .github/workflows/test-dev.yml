@@ -635,9 +635,6 @@ jobs:
       - run: npx @replayio/playwright install all
         if: ${{needs.build.outputs.docsChange == 'nope'}}
 
-      - run: find /tmp/next-* | grep '.next/static/chunks'
-        if: always()
-
       - run: node run-tests.js --type e2e --timings -g ${{ matrix.group }}/3 --debug
         name: Run test/e2e (dev)
         if: ${{needs.build.outputs.docsChange == 'nope'}}
