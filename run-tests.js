@@ -64,7 +64,8 @@ async function main() {
     (concurrencyIdx > -1 && parseInt(process.argv[concurrencyIdx + 1], 10)) ||
     DEFAULT_CONCURRENCY
 
-  const hideOutput = !process.argv.includes('--debug')
+  // const hideOutput = !process.argv.includes('--debug')
+  const hideOutput = false
   const outputTimings = process.argv.includes('--timings')
   const writeTimings = process.argv.includes('--write-timings')
   const groupIdx = process.argv.indexOf('-g')
@@ -244,6 +245,12 @@ async function main() {
       let outputChunks = []
 
       const shouldRecordTestWithReplay = process.env.RECORD_REPLAY && isRetry
+
+      console.log(
+        '>>>shouldRecordTestWithReplay',
+        shouldRecordTestWithReplay,
+        isRetry
+      )
 
       const child = spawn(
         jestPath,
