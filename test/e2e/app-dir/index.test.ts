@@ -417,7 +417,7 @@ describe('app dir', () => {
       })
 
       // TODO-APP: investigate this test
-      it.skip('should soft replace', async () => {
+      it('should soft replace', async () => {
         const browser = await webdriver(next.url, '/link-soft-replace')
 
         try {
